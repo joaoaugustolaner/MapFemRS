@@ -1,6 +1,6 @@
 import data
 
-rd = data.RawData()
+rd = data.RawDataTreatment()
 rd.main()
 
 
