@@ -75,7 +75,7 @@ class Scrapper:
         for item in links.items():
             file_url = item[1] #access only links for each item
 
-            print(f'\nReport_{item[0]} saved under {path_to_files}\n')
+            print(f'\n{item[0]}.xlsx saved under {path_to_files}\n')
             wget.download(url=file_url, out=f'{path_to_files}/{item[0]}.xlsx')
             
 
