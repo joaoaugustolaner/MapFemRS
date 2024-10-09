@@ -1,41 +1,51 @@
-import time
 from pathlib import Path
-
+from time import sleep
 import pandas as pd
 
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
-from pyspark.sql import DataFrame
 
-class RawDataProcessor():
+class RawDataProcessor(): 
+    """
+    RawDataProcesor is a class for reading .xlsx files from '$HOME/.mapfem/data/raw' and parse each file into a folder with its respective marker as a file.
     
-    """Reads the xlsx reports in the reports directory and correct for any duplicates""" 
+    e.g 
 
-    def processData(self, path_to_file: Path) -> dict[str, DataFrame]: 
+    2023/
+    |___ Ameaça.csv
+    |___ Lesão Corporal/.csv
+    ...
+
+    2024/
+    |___ Ameaça.csv
+    |___ Lesão Corporal/.csv
+    ...
+    """ 
+
+    def processData(self, path_to_file: Path): 
 
         #Spark info
         conf = SparkConf().setAppName("MapFemRS").setMaster("local").set("spark.executor.memory", "2g")
         spark = SparkSession.Builder().config(conf=conf).getOrCreate()
         
 
-
-        file = str(path_to_file) + "/2019.xlsx"
-
         files = list(path_to_file.iterdir())
         sheet_names = ['Feminicídio Tentado', 'Feminicídio Consumado', 'Ameaça', 'Estupro', 'Lesão Corporal']
         
-        files_dataframes = dict()
-
         for file in files:
-            print(f"{file.stem} ----------------------------------------------------------------------------------------------------------------- ")
+            if file.stem == "2017":
+                continue
+            
+            print(f"{file.stem} being saved...\n")
+            sleep(1)
 
-            file_df = None
+            output_path = Path(f'{Path.home()}/.mapfem/data/tabular/{file.stem}/') 
+            output_path.mkdir(exist_ok=True, parents=True) 
+
             for sheet in sheet_names:
                 
-                if file.stem == "2017":
-                    continue
-
-                df = pd.read_excel(file, engine="openpyxl", sheet_name=sheet, skiprows = 3, nrows = 497,  )
+                
+                df = pd.read_excel(file, engine="openpyxl", sheet_name=sheet, skiprows = 3, nrows = 497)
 
                 df = spark.createDataFrame(df)
                 df = df.drop("Unnamed: 0")
@@ -55,17 +65,11 @@ class RawDataProcessor():
                         .withColumnRenamed(f"{df.columns[12]}", "DEZ") \
                         .withColumnRenamed(f"{df.columns[13]}", "TOTAL")
                 
-
-                if file_df is None:
-                    file_df = df
-                else: 
-                    file_df = file_df.join(other=df, on="Cidades", how="inner")
-
-            files_dataframes[file.stem] = file_df
-        
-        print(files_dataframes["2018"].show())
-        return files_dataframes
-            
+                df = df.drop(df.columns[13])
+                df.toPandas().to_csv(f"{output_path}/{sheet}.csv", 
+                                     encoding="utf-8", 
+                                     index=False, 
+                                     header=True)
     def transformData(self):
         return
 

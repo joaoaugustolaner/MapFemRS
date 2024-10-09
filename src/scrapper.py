@@ -68,7 +68,6 @@ class Scrapper:
         else:
             Path.mkdir(path_to_files, parents=True)
             print(f'{path_to_files} CREATED!\n')
-            os.system('clear')
 
         print("BEGGINING DONWLOAD.\n")
         
