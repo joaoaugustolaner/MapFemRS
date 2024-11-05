@@ -2,8 +2,8 @@
 
 Is a project that aims to collaborate with the initative Open Data to create a better understanding and visualization of the numbers of feminicide in Rio Grande do Sul.
 
-> Warning! 
-The data presented here may contain highly sensitive information for some people. We highly recommend caution when proceeding.
+> [!WARNING]  
+> The data presented here may contain highly sensitive information for some people. We highly recommend caution when proceeding.
 
 ## How to Run:
 TODO:
